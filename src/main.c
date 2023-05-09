@@ -1,9 +1,9 @@
 #include<stdio.h>
 #include<stdlib.h>
-#include<SDL.h>
-#include<SDL_image.h>
-#include<SDL_ttf.h>
-#include<SDL_mixer.h>
+#include "SDL.h"
+#include "SDL_image.h"
+#include "SDL_ttf.h"
+#include "SDL_mixer.h"
 
 #define NUM_TARGETS 3
 
@@ -14,11 +14,11 @@ typedef struct {
 	SDL_Rect dest;
 	int is_dragging;
 	int tartype;
-	int disappear;
+	int disappear; /* 1 - need exit
+					  0 - continue run */
 }Targets;
-//disappear为1需要消失0不需要
-//丢完垃圾进入下个场景1为不进0为进,count用于计算是否每个垃圾都消失
-int Enternextscene;
+
+int enterNextScene;
 int count;
 
 Targets targets[NUM_TARGETS];
@@ -100,24 +100,26 @@ int SDL_main(int argc, char* argv[]) {
 
 	Window = SDL_CreateWindow("Digital Pet", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 710, 710, SDL_WINDOW_SHOWN);
 	Renderer = SDL_CreateRenderer(Window, -1, SDL_RENDERER_ACCELERATED);
-	Enternextscene = 1;
+	enterNextScene = 1;
 	fcarrot = 0;
-	//初始页面加载资源
-	Main_Surface = IMG_Load("R.jpg");
+
+	// init welcome scene resources
+	Main_Surface = IMG_Load("resources/R.jpg");
 	Main_Texture = SDL_CreateTextureFromSurface(Renderer, Main_Surface);
 	Main_Rect.x = 0;
 	Main_Rect.y = 0;
 	Main_Rect.w = 710;
 	Main_Rect.h = 710;
 
-	TitleFont = TTF_OpenFont("OPlusSans3-Bold.ttf", 50);
+	TitleFont = TTF_OpenFont("resources/OPlusSans3-Bold.ttf", 50);
 	TitleSurface = TTF_RenderUTF8_Blended(TitleFont, "Digital Pet", Titlecolor);
 	TitleTexture = SDL_CreateTextureFromSurface(Renderer, TitleSurface);
 	TitleRect.x = 160;
 	TitleRect.y = 18;
 	TitleRect.w = 370;
 	TitleRect.h = 96;
-	//绘制初始页面
+
+	// draw welcome scene
 	SDL_RenderClear(Renderer);
 	SDL_RenderCopy(Renderer, Main_Texture, NULL, &Main_Rect);
 	SDL_RenderCopy(Renderer, TitleTexture, NULL, &TitleRect);
@@ -125,7 +127,7 @@ int SDL_main(int argc, char* argv[]) {
 	SDL_Delay(5000);
 
 
-	//写入不同垃圾的位置
+	// init rubbish
 	srand(time(NULL));
 	int tar;
 	for (tar = 0; tar < NUM_TARGETS; tar++) {
@@ -138,7 +140,7 @@ int SDL_main(int argc, char* argv[]) {
 		targets[tar].disappear = 0;
 	}
 
-	//加载垃圾和背景和垃圾桶
+	// load background and rubbish bucket
 	TitleSurface1 = TTF_RenderUTF8_Blended(TitleFont, "Throw the garbage into the trash can", Titlecolor);
 	TitleTexture1 = SDL_CreateTextureFromSurface(Renderer, TitleSurface1);
 	TitleRect1.x = 20;
@@ -153,14 +155,15 @@ int SDL_main(int argc, char* argv[]) {
 	RB_Rect.y = 570;
 	RB_Rect.w = 115;
 	RB_Rect.h = 140;
-	Room_Surface = IMG_Load("room1.png");
+	Room_Surface = IMG_Load("resources/room1.png");
 	Room_Texture = SDL_CreateTextureFromSurface(Renderer, Room_Surface);
-	Banana_Surface = IMG_Load("banana.png");
+	Banana_Surface = IMG_Load("resources/banana.png");
 	Banana_Texture = SDL_CreateTextureFromSurface(Renderer, Banana_Surface);
-	Paper_Surface = IMG_Load("paper.png");
+	Paper_Surface = IMG_Load("resources/paper.png");
 	Paper_Texture = SDL_CreateTextureFromSurface(Renderer, Paper_Surface);
 	event_loop();
-	//释放内存
+
+	// release memory
 	SDL_FreeSurface(Room_Surface);
 	SDL_FreeSurface(Banana_Surface);
 	SDL_FreeSurface(Paper_Surface);
@@ -172,8 +175,9 @@ int SDL_main(int argc, char* argv[]) {
 	SDL_DestroyTexture(TitleTexture);
 	SDL_DestroyTexture(TitleTexture1);
 	SDL_RenderClear(Renderer);
-	//进入场景2
-	// 加载逐帧动画
+
+	// enter scene 2
+	// load animation
 	for (int i = 0; i < 6; i++) {
 		object[i].dest.x = 297;
 		object[i].dest.y = 413;
@@ -181,36 +185,39 @@ int SDL_main(int argc, char* argv[]) {
 		object[i].dest.h = 204;
 		object[i].walktype = 0;
 	}
-	//加载资源,人物，背景，萝卜
+
+	// load resources
 	TitleSurface2 = TTF_RenderUTF8_Blended(TitleFont, "Press right button and find the carrot", Titlecolor);
 	TitleTexture2 = SDL_CreateTextureFromSurface(Renderer, TitleSurface2);
 	TitleRect2.x = 20;
 	TitleRect2.y = 20;
 	TitleRect2.w = 650;
 	TitleRect2.h = 80;
-	BG_Surface = IMG_Load("background.png");
+	BG_Surface = IMG_Load("resources/background.png");
 	BG_Texture = SDL_CreateTextureFromSurface(Renderer, BG_Surface);
-	Walk1_Surface = IMG_Load("walk1.png");
+	Walk1_Surface = IMG_Load("resources/walk1.png");
 	Walk1_Texture = SDL_CreateTextureFromSurface(Renderer, Walk1_Surface);
-	Walk2_Surface = IMG_Load("walk2.png");
+	Walk2_Surface = IMG_Load("resources/walk2.png");
 	Walk2_Texture = SDL_CreateTextureFromSurface(Renderer, Walk2_Surface);
-	Walk3_Surface = IMG_Load("walk3.png");
+	Walk3_Surface = IMG_Load("resources/walk3.png");
 	Walk3_Texture = SDL_CreateTextureFromSurface(Renderer, Walk3_Surface);
-	Walk4_Surface = IMG_Load("walk4.png");
+	Walk4_Surface = IMG_Load("resources/walk4.png");
 	Walk4_Texture = SDL_CreateTextureFromSurface(Renderer, Walk4_Surface);
-	Walk5_Surface = IMG_Load("walk5.png");
+	Walk5_Surface = IMG_Load("resources/walk5.png");
 	Walk5_Texture = SDL_CreateTextureFromSurface(Renderer, Walk5_Surface);
-	Stand_Surface = IMG_Load("stand.png");
+	Stand_Surface = IMG_Load("resources/stand.png");
 	Stand_Texture = SDL_CreateTextureFromSurface(Renderer, Stand_Surface);
-	Carrot_Surface = IMG_Load("carrot.png");
+	Carrot_Surface = IMG_Load("resources/carrot.png");
 	Carrot_Texture = SDL_CreateTextureFromSurface(Renderer, Carrot_Surface);
 	Carrot_Rect.x = 710;
 	Carrot_Rect.y = 413;
 	Carrot_Rect.w = 80;
 	Carrot_Rect.h = 150;
-	//加载萝卜
+
+	// load carrot
 	event_loop2();
-	//释放资源
+
+	// release resources
 	SDL_FreeSurface(TitleSurface2);
 	SDL_FreeSurface(BG_Surface);
 	SDL_FreeSurface(Stand_Surface);
@@ -229,14 +236,15 @@ int SDL_main(int argc, char* argv[]) {
 	SDL_DestroyTexture(Walk5_Texture);
 	SDL_FreeSurface(Carrot_Surface);
 	SDL_DestroyTexture(Carrot_Texture);
-	//游戏结束的资源加载
+
+	// resource load when game ending
 	TitleSurface3 = TTF_RenderUTF8_Blended(TitleFont, "Thanks for playing", Titlecolor);
 	TitleTexture3 = SDL_CreateTextureFromSurface(Renderer, TitleSurface3);
 	TitleRect3.x = 20;
 	TitleRect3.y = 20;
 	TitleRect3.w = 650;
 	TitleRect3.h = 80;
-	End_Surface = IMG_Load("OIP.jpg");
+	End_Surface = IMG_Load("resources/OIP.jpg");
 	End_Texture = SDL_CreateTextureFromSurface(Renderer, End_Surface);
 	End_Rect.x = 0;
 	End_Rect.y = 0;
@@ -247,23 +255,25 @@ int SDL_main(int argc, char* argv[]) {
 	SDL_RenderCopy(Renderer, TitleTexture3, NULL, &TitleRect3);
 	SDL_RenderPresent(Renderer);
 	SDL_Delay(3000);
-	//释放资源
+
+	// release memory
 	SDL_FreeSurface(TitleSurface3);
 	SDL_FreeSurface(End_Surface);
 	SDL_DestroyTexture(TitleTexture3);
 	SDL_DestroyTexture(End_Texture);
 	SDL_DestroyWindow(Window);
 	SDL_DestroyRenderer(Renderer);
+
+	SDL_Quit();
 	return 0;
 }
 
 void event_loop() {
-	while (Enternextscene) {
+	while (enterNextScene) {
 		SDL_Event MainEvent;
 		long Begin = SDL_GetTicks();
 		if (SDL_PollEvent(&MainEvent)) {
 			if (MainEvent.type == SDL_QUIT) {
-				SDL_Quit();
 				break;
 			}
 			else if (MainEvent.type == SDL_MOUSEBUTTONDOWN) {
@@ -294,7 +304,8 @@ void event_loop() {
 				}
 			}
 			SDL_RenderClear(Renderer);
-			//绘制背景和垃圾
+
+			// draw background and rubbish
 			SDL_RenderCopy(Renderer, Room_Texture, NULL, &Room_Rect);
 			for (int i = 0; i < NUM_TARGETS; i++) {
 				if (targets[i].disappear==0) {
@@ -319,7 +330,7 @@ void event_loop() {
 				count = count + targets[i].disappear;
 			}
 			if (count == 3) {
-				Enternextscene = 0;			}
+				enterNextScene = 0;			}
 			else {
 				count = 0;
 			}
@@ -336,18 +347,18 @@ void event_loop2() {
 	frameanime = 0;
 	walkstep = 0;
 	int i = 0;
-	while (outscene) {
+	int shouldExit = 0;
+	while (outscene && !shouldExit) {
 		SDL_Event MainEvent;
-		long Begin = SDL_GetTicks;
-		SDL_Rect src1 = { bg_x, 0, BG_Surface->w, BG_Surface->h };          // 捕获图片区域1
-		SDL_Rect src2 = { 0, 0, BG_Surface->w, BG_Surface->h };               // 捕获图片区域2
-		SDL_Rect put1 = { 0, 0, BG_Surface->w-bg_x, BG_Surface->h };      // 显示区域1
-		SDL_Rect put2 = { BG_Surface->w-bg_x, 0, BG_Surface->w, BG_Surface->h }; // 显示区域2
+		Uint32 Begin = SDL_GetTicks;
+		SDL_Rect src1 = { bg_x, 0, BG_Surface->w, BG_Surface->h };
+		SDL_Rect src2 = { 0, 0, BG_Surface->w, BG_Surface->h };
+		SDL_Rect put1 = { 0, 0, BG_Surface->w-bg_x, BG_Surface->h };
+		SDL_Rect put2 = { BG_Surface->w-bg_x, 0, BG_Surface->w, BG_Surface->h };
 
-		if (SDL_PollEvent(&MainEvent)){
+		while (SDL_PollEvent(&MainEvent)) {
 			if (MainEvent.type == SDL_QUIT) {
-				SDL_Quit();
-				break;
+				shouldExit = 1;
 			}
 			//if (MainEvent.key.keysym.sym == SDLK_LEFT) {
 			//	bg_x = bg_x - walkspeed;
@@ -380,7 +391,8 @@ void event_loop2() {
 		if (Carrot_Rect.x < object[i].dest.x + object[i].dest.w) {
 			outscene = 0;
 		}
-		//这里开始写绘制场地和人物
+
+		// start render scene and charactors
 		SDL_RenderClear(Renderer);
 		SDL_RenderCopy(Renderer, BG_Texture, &src1, &put1);
 		SDL_RenderCopy(Renderer, BG_Texture, &src2, &put2);
@@ -405,7 +417,8 @@ void event_loop2() {
 		}
 		SDL_RenderCopy(Renderer, TitleTexture2, NULL, &TitleRect2);
 		SDL_RenderPresent(Renderer);
-		//帧数控制
+
+		// control fps
 		long End = SDL_GetTicks();
 		long Cost = End - Begin;
 		long Frame = 1000 / 60;
