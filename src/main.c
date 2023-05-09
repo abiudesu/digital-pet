@@ -104,14 +104,14 @@ int SDL_main(int argc, char* argv[]) {
 	fcarrot = 0;
 
 	// init welcome scene resources
-	Main_Surface = IMG_Load("R.jpg");
+	Main_Surface = IMG_Load("resources/R.jpg");
 	Main_Texture = SDL_CreateTextureFromSurface(Renderer, Main_Surface);
 	Main_Rect.x = 0;
 	Main_Rect.y = 0;
 	Main_Rect.w = 710;
 	Main_Rect.h = 710;
 
-	TitleFont = TTF_OpenFont("OPlusSans3-Bold.ttf", 50);
+	TitleFont = TTF_OpenFont("resources/OPlusSans3-Bold.ttf", 50);
 	TitleSurface = TTF_RenderUTF8_Blended(TitleFont, "Digital Pet", Titlecolor);
 	TitleTexture = SDL_CreateTextureFromSurface(Renderer, TitleSurface);
 	TitleRect.x = 160;
@@ -155,11 +155,11 @@ int SDL_main(int argc, char* argv[]) {
 	RB_Rect.y = 570;
 	RB_Rect.w = 115;
 	RB_Rect.h = 140;
-	Room_Surface = IMG_Load("room1.png");
+	Room_Surface = IMG_Load("resources/room1.png");
 	Room_Texture = SDL_CreateTextureFromSurface(Renderer, Room_Surface);
-	Banana_Surface = IMG_Load("banana.png");
+	Banana_Surface = IMG_Load("resources/banana.png");
 	Banana_Texture = SDL_CreateTextureFromSurface(Renderer, Banana_Surface);
-	Paper_Surface = IMG_Load("paper.png");
+	Paper_Surface = IMG_Load("resources/paper.png");
 	Paper_Texture = SDL_CreateTextureFromSurface(Renderer, Paper_Surface);
 	event_loop();
 
@@ -193,21 +193,21 @@ int SDL_main(int argc, char* argv[]) {
 	TitleRect2.y = 20;
 	TitleRect2.w = 650;
 	TitleRect2.h = 80;
-	BG_Surface = IMG_Load("background.png");
+	BG_Surface = IMG_Load("resources/background.png");
 	BG_Texture = SDL_CreateTextureFromSurface(Renderer, BG_Surface);
-	Walk1_Surface = IMG_Load("walk1.png");
+	Walk1_Surface = IMG_Load("resources/walk1.png");
 	Walk1_Texture = SDL_CreateTextureFromSurface(Renderer, Walk1_Surface);
-	Walk2_Surface = IMG_Load("walk2.png");
+	Walk2_Surface = IMG_Load("resources/walk2.png");
 	Walk2_Texture = SDL_CreateTextureFromSurface(Renderer, Walk2_Surface);
-	Walk3_Surface = IMG_Load("walk3.png");
+	Walk3_Surface = IMG_Load("resources/walk3.png");
 	Walk3_Texture = SDL_CreateTextureFromSurface(Renderer, Walk3_Surface);
-	Walk4_Surface = IMG_Load("walk4.png");
+	Walk4_Surface = IMG_Load("resources/walk4.png");
 	Walk4_Texture = SDL_CreateTextureFromSurface(Renderer, Walk4_Surface);
-	Walk5_Surface = IMG_Load("walk5.png");
+	Walk5_Surface = IMG_Load("resources/walk5.png");
 	Walk5_Texture = SDL_CreateTextureFromSurface(Renderer, Walk5_Surface);
-	Stand_Surface = IMG_Load("stand.png");
+	Stand_Surface = IMG_Load("resources/stand.png");
 	Stand_Texture = SDL_CreateTextureFromSurface(Renderer, Stand_Surface);
-	Carrot_Surface = IMG_Load("carrot.png");
+	Carrot_Surface = IMG_Load("resources/carrot.png");
 	Carrot_Texture = SDL_CreateTextureFromSurface(Renderer, Carrot_Surface);
 	Carrot_Rect.x = 710;
 	Carrot_Rect.y = 413;
@@ -244,7 +244,7 @@ int SDL_main(int argc, char* argv[]) {
 	TitleRect3.y = 20;
 	TitleRect3.w = 650;
 	TitleRect3.h = 80;
-	End_Surface = IMG_Load("OIP.jpg");
+	End_Surface = IMG_Load("resources/OIP.jpg");
 	End_Texture = SDL_CreateTextureFromSurface(Renderer, End_Surface);
 	End_Rect.x = 0;
 	End_Rect.y = 0;
@@ -263,6 +263,8 @@ int SDL_main(int argc, char* argv[]) {
 	SDL_DestroyTexture(End_Texture);
 	SDL_DestroyWindow(Window);
 	SDL_DestroyRenderer(Renderer);
+
+	SDL_Quit();
 	return 0;
 }
 
@@ -272,7 +274,6 @@ void event_loop() {
 		long Begin = SDL_GetTicks();
 		if (SDL_PollEvent(&MainEvent)) {
 			if (MainEvent.type == SDL_QUIT) {
-				SDL_Quit();
 				break;
 			}
 			else if (MainEvent.type == SDL_MOUSEBUTTONDOWN) {
@@ -303,7 +304,8 @@ void event_loop() {
 				}
 			}
 			SDL_RenderClear(Renderer);
-			//���Ʊ���������
+
+			// draw background and rubbish
 			SDL_RenderCopy(Renderer, Room_Texture, NULL, &Room_Rect);
 			for (int i = 0; i < NUM_TARGETS; i++) {
 				if (targets[i].disappear==0) {
@@ -345,18 +347,18 @@ void event_loop2() {
 	frameanime = 0;
 	walkstep = 0;
 	int i = 0;
-	while (outscene) {
+	int shouldExit = 0;
+	while (outscene && !shouldExit) {
 		SDL_Event MainEvent;
 		Uint32 Begin = SDL_GetTicks;
-		SDL_Rect src1 = { bg_x, 0, BG_Surface->w, BG_Surface->h };          // ����ͼƬ����1
-		SDL_Rect src2 = { 0, 0, BG_Surface->w, BG_Surface->h };               // ����ͼƬ����2
-		SDL_Rect put1 = { 0, 0, BG_Surface->w-bg_x, BG_Surface->h };      // ��ʾ����1
-		SDL_Rect put2 = { BG_Surface->w-bg_x, 0, BG_Surface->w, BG_Surface->h }; // ��ʾ����2
+		SDL_Rect src1 = { bg_x, 0, BG_Surface->w, BG_Surface->h };
+		SDL_Rect src2 = { 0, 0, BG_Surface->w, BG_Surface->h };
+		SDL_Rect put1 = { 0, 0, BG_Surface->w-bg_x, BG_Surface->h };
+		SDL_Rect put2 = { BG_Surface->w-bg_x, 0, BG_Surface->w, BG_Surface->h };
 
-		if (SDL_PollEvent(&MainEvent)){
+		while (SDL_PollEvent(&MainEvent)) {
 			if (MainEvent.type == SDL_QUIT) {
-				SDL_Quit();
-				break;
+				shouldExit = 1;
 			}
 			//if (MainEvent.key.keysym.sym == SDLK_LEFT) {
 			//	bg_x = bg_x - walkspeed;
